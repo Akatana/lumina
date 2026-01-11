@@ -42,18 +42,25 @@ func run() error {
 	filter := &lumina.GrayscaleFilter{}
 	grayImg := filter.Process(loadedImg)
 
-	bounds := grayImg.Bounds()
+	fmt.Println("Resizing image to 200x200...")
+	processor := &lumina.DefaultProcessor{}
+	resizedImg := processor.Resize(grayImg, 200, 200)
+
+	fmt.Println("Cropping image to 100x100...")
+	croppedImg := processor.Crop(resizedImg, image.Rect(50, 50, 150, 150))
+
+	bounds := croppedImg.Bounds()
 	fmt.Printf("Processed image bounds: %v\n", bounds)
 
-	fmt.Println("Saving processed image as output_gray.jpg...")
-	err = lumina.Save("output_gray.jpg", grayImg)
+	fmt.Println("Saving processed image as output_final.jpg...")
+	err = lumina.Save("output_final.jpg", croppedImg)
 	if err != nil {
 		return fmt.Errorf("saving processed image: %w", err)
 	}
-	defer os.Remove("output_gray.jpg")
+	defer os.Remove("output_final.jpg")
 
 	// Check the color of a pixel
-	c := grayImg.At(50, 50)
+	c := croppedImg.At(50, 50)
 	fmt.Printf("Color at (50, 50): %v\n", c)
 	return nil
 }

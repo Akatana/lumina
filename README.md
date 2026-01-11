@@ -41,7 +41,7 @@ For detailed documentation, please refer to:
 
 ### Roadmap
 
-- [ ] Implementation of high-performance Resize and Crop algorithms.
+- [x] Implementation of high-performance Resize and Crop algorithms.
 - [ ] Support for more filters (Blur, Sharpen, etc.).
 - [ ] **Dynamic asset scaling** optimized for digital signage.
 - [ ] SIMD optimizations for even greater performance.

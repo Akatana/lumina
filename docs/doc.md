@@ -11,7 +11,7 @@ Lumina is a high-performance, pure-Go image processing library. This document pr
 ## Core Interfaces
 
 ### Processor
-The `Processor` interface defines the core operations for image processing.
+The `Processor` interface defines the core operations for image processing. Lumina provides a `DefaultProcessor` implementation that uses Goroutines for high performance.
 
 ```go
 type Processor interface {
@@ -20,6 +20,13 @@ type Processor interface {
     ApplyFilter(img image.Image, filter Filter) image.Image
 }
 ```
+
+### DefaultProcessor
+`DefaultProcessor` is the standard implementation of the `Processor` interface.
+
+- **Resize**: Uses bilinear interpolation and parallelizes row processing for speed.
+- **Crop**: Efficiently extracts a sub-image using `image/draw`.
+- **ApplyFilter**: Helper method to apply a `Filter` to an image.
 
 ### Filter
 The `Filter` interface represents an image processing filter.

@@ -20,8 +20,24 @@ go get github.com/Akatana/lumina
 ```go
 import "github.com/Akatana/lumina/pkg/lumina"
 
-// Example usage coming soon!
+func main() {
+    // Load an image
+    img, _, _ := lumina.Load("input.png")
+
+    // Apply grayscale filter
+    filter := &lumina.GrayscaleFilter{}
+    grayImg := filter.Process(img)
+
+    // Save the result
+    lumina.Save("output.jpg", grayImg)
+}
 ```
+
+### Documentation
+
+For detailed documentation, please refer to:
+- [Official Go Documentation (pkg.go.dev)](https://pkg.go.dev/github.com/Akatana/lumina/pkg/lumina)
+- [Project Documentation (docs/doc.md)](docs/doc.md)
 
 ### Roadmap
 

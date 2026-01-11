@@ -8,9 +8,11 @@ import (
 )
 
 // GrayscaleFilter converts an image to grayscale.
+// It implements the Filter interface.
 type GrayscaleFilter struct{}
 
 // Process converts the given image to grayscale using Goroutines for performance.
+// It iterates over rows of the image concurrently.
 func (f *GrayscaleFilter) Process(img image.Image) image.Image {
 	bounds := img.Bounds()
 	grayImg := image.NewGray(bounds)

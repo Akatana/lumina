@@ -10,14 +10,19 @@ import (
 	"path/filepath"
 	"strings"
 
+	_ "golang.org/x/image/bmp"
+	_ "golang.org/x/image/webp"
+
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+
+	"golang.org/x/image/bmp"
 )
 
 // Load reads an image from the given file path.
-// It supports JPEG, PNG, and GIF formats by utilizing the standard library's image decoders.
-// Returns the decoded image, the format name (e.g., "png", "jpeg"), and any error encountered.
+// It supports JPEG, PNG, GIF, BMP, and WebP formats.
+// Returns the decoded image, the format name (e.g., "png", "jpeg", "webp", "bmp"), and any error encountered.
 func Load(path string) (image.Image, string, error) {
 	file, err := os.Open(path)
 	if err != nil {
@@ -35,7 +40,7 @@ func Load(path string) (image.Image, string, error) {
 
 // Save writes an image to the given file path.
 // The format is determined by the file extension. Supported extensions are:
-// .jpg, .jpeg, .png, .gif.
+// .jpg, .jpeg, .png, .gif, .bmp, .webp.
 // Returns an error if the format is unsupported or if the file cannot be created/written.
 func Save(path string, img image.Image) error {
 	ext := strings.ToLower(filepath.Ext(path))
@@ -53,6 +58,10 @@ func Save(path string, img image.Image) error {
 		return png.Encode(file, img)
 	case ".gif":
 		return gif.Encode(file, img, nil)
+	case ".bmp":
+		return bmp.Encode(file, img)
+	case ".webp":
+		return SaveWebP(file, img)
 	default:
 		return fmt.Errorf("unsupported format: %s", ext)
 	}

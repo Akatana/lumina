@@ -43,11 +43,12 @@ Lumina provides simple functions to load and save images.
 
 ### Load
 `Load(path string) (image.Image, string, error)`
-Loads an image from the filesystem. Supports PNG, JPEG, and GIF.
+Loads an image from the filesystem. Supports PNG, JPEG, GIF, BMP, and WebP.
 
 ### Save
 `Save(path string, img image.Image) error`
-Saves an image to the filesystem. The format is determined by the file extension (.png, .jpg, .jpeg, .gif).
+Saves an image to the filesystem. The format is determined by the file extension (.png, .jpg, .jpeg, .gif, .bmp, .webp).
+Note: WebP encoding is a minimal implementation and currently works best with simple images.
 
 ## Filters
 

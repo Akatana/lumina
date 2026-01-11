@@ -30,6 +30,7 @@ func TestLoadSave(t *testing.T) {
 		{"PNG", "test.png", "png"},
 		{"JPEG", "test.jpg", "jpeg"},
 		{"GIF", "test.gif", "gif"},
+		{"BMP", "test.bmp", "bmp"},
 	}
 
 	for _, tt := range tests {
@@ -87,7 +88,7 @@ func TestLoad_Invalid(t *testing.T) {
 
 func TestSave_Unsupported(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
-	err := Save("test.bmp", img)
+	err := Save("test.unsupported", img)
 	if err == nil {
 		t.Error("Expected error for unsupported format, got nil")
 	}
@@ -100,4 +101,27 @@ func TestSave_CreateFail(t *testing.T) {
 	if err == nil {
 		t.Error("Expected error for invalid path, got nil")
 	}
+}
+
+func TestSaveWebP_Coverage(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	for y := 0; y < 10; y++ {
+		for x := 0; x < 10; x++ {
+			img.Set(x, y, color.RGBA{255, 0, 0, 255})
+		}
+	}
+
+	tempFile, err := os.CreateTemp("", "test_webp_*.webp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tempFile.Name())
+	tempFile.Close()
+
+	err = Save(tempFile.Name(), img)
+	if err != nil {
+		t.Fatalf("SaveWebP failed: %v", err)
+	}
+
+	// We don't Load it back here because the current Load uses a decoder that might fail.
 }

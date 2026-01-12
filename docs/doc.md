@@ -47,8 +47,14 @@ Loads an image from the filesystem. Supports PNG, JPEG, GIF, BMP, and WebP.
 
 ### Save
 `Save(path string, img image.Image) error`
-Saves an image to the filesystem. The format is determined by the file extension (.png, .jpg, .jpeg, .gif, .bmp, .webp).
-Note: WebP encoding is a minimal implementation and currently works best with simple images.
+Saves an image to the filesystem. The format is determined by the file extension:
+- `.png`: Portable Network Graphics
+- `.jpg`, `.jpeg`: JPEG Quality 75 (default)
+- `.gif`: Graphics Interchange Format
+- `.bmp`: Windows Bitmap
+- `.webp`: WebP Lossless
+
+**Note on WebP Encoding**: Lumina uses the `github.com/HugoSmits86/nativewebp` package for high-quality lossless WebP encoding. This provides full support for the WebP Lossless format without requiring CGO.
 
 ## Filters
 
@@ -58,22 +64,36 @@ A high-performance grayscale filter that processes image rows concurrently using
 ## Example Usage
 
 ```go
-import "github.com/Akatana/lumina/pkg/lumina"
+import (
+    "image"
+    "github.com/Akatana/lumina/pkg/lumina"
+)
 
-// Load an image
-img, format, err := lumina.Load("input.png")
-if err != nil {
-    panic(err)
-}
+func main() {
+    // Load an image
+    img, format, err := lumina.Load("input.png")
+    if err != nil {
+        panic(err)
+    }
 
-// Apply grayscale filter
-filter := &lumina.GrayscaleFilter{}
-grayImg := filter.Process(img)
+    // Use DefaultProcessor for Resize and Crop
+    processor := &lumina.DefaultProcessor{}
+    
+    // Resize to 800x600
+    resizedImg := processor.Resize(img, 800, 600)
 
-// Save the result
-err = lumina.Save("output.jpg", grayImg)
-if err != nil {
-    panic(err)
+    // Crop a 400x400 area from the center (example coordinates)
+    croppedImg := processor.Crop(resizedImg, image.Rect(200, 100, 600, 500))
+
+    // Apply grayscale filter
+    filter := &lumina.GrayscaleFilter{}
+    grayImg := filter.Process(croppedImg)
+
+    // Save the result
+    err = lumina.Save("output.jpg", grayImg)
+    if err != nil {
+        panic(err)
+    }
 }
 ```
 

@@ -107,7 +107,7 @@ func TestSaveWebP_Coverage(t *testing.T) {
 	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
 	for y := 0; y < 10; y++ {
 		for x := 0; x < 10; x++ {
-			img.Set(x, y, color.RGBA{255, 0, 0, 255})
+			img.Set(x, y, color.RGBA{uint8(x * 25), uint8(y * 25), 100, 255})
 		}
 	}
 
@@ -120,8 +120,31 @@ func TestSaveWebP_Coverage(t *testing.T) {
 
 	err = Save(tempFile.Name(), img)
 	if err != nil {
-		t.Fatalf("SaveWebP failed: %v", err)
+		t.Fatalf("Save failed: %v", err)
 	}
 
-	// We don't Load it back here because the current Load uses a decoder that might fail.
+	// Test Load it back
+	loadedImg, format, err := Load(tempFile.Name())
+	if err != nil {
+		t.Fatalf("Load WebP failed: %v", err)
+	}
+
+	if format != "webp" {
+		t.Errorf("Expected format webp, got %s", format)
+	}
+
+	if loadedImg.Bounds() != img.Bounds() {
+		t.Errorf("Expected bounds %v, got %v", img.Bounds(), loadedImg.Bounds())
+	}
+
+	// Verify a few pixels
+	for _, p := range []image.Point{{0, 0}, {5, 5}, {9, 9}} {
+		c1 := img.At(p.X, p.Y)
+		c2 := loadedImg.At(p.X, p.Y)
+		r1, g1, b1, a1 := c1.RGBA()
+		r2, g2, b2, a2 := c2.RGBA()
+		if r1 != r2 || g1 != g2 || b1 != b2 || a1 != a2 {
+			t.Errorf("Pixel at %v mismatch: expected %v, got %v", p, c1, c2)
+		}
+	}
 }

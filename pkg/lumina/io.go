@@ -17,6 +17,7 @@ import (
 	"image/jpeg"
 	"image/png"
 
+	"github.com/HugoSmits86/nativewebp"
 	"golang.org/x/image/bmp"
 )
 
@@ -61,7 +62,7 @@ func Save(path string, img image.Image) error {
 	case ".bmp":
 		return bmp.Encode(file, img)
 	case ".webp":
-		return SaveWebP(file, img)
+		return nativewebp.Encode(file, img, nil)
 	default:
 		return fmt.Errorf("unsupported format: %s", ext)
 	}

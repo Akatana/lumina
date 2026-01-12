@@ -6,7 +6,8 @@ A high-performance, pure-Go image processing library designed to be a CGO-free a
 
 Lumina is built for developers who need fast, reliable image processing without the headaches of C dependencies.
 - **Pure Go**: Zero CGO dependencies, making cross-compilation a breeze.
-- **Performance Focused**: Leverages Go's concurrency primitives (Goroutines) to process images in parallel.
+- **Performance Focused**: Leverages Go's concurrency primitives (Goroutines) for parallel processing of Resize, Crop, and Filters.
+- **Format Support**: Extensive support for PNG, JPEG, GIF, BMP, and WebP (Full decoding and encoding).
 - **Standard Library Based**: Built on top of `image` and `image/color` for maximum compatibility.
 
 ### Installation
@@ -18,15 +19,24 @@ go get github.com/Akatana/lumina
 ### Usage
 
 ```go
-import "github.com/Akatana/lumina/pkg/lumina"
+import (
+    "image"
+    "github.com/Akatana/lumina/pkg/lumina"
+)
 
 func main() {
     // Load an image
     img, _, _ := lumina.Load("input.png")
 
+    // Use the default processor for Resize and Crop
+    processor := &lumina.DefaultProcessor{}
+    
+    // Resize image
+    resizedImg := processor.Resize(img, 800, 600)
+
     // Apply grayscale filter
     filter := &lumina.GrayscaleFilter{}
-    grayImg := filter.Process(img)
+    grayImg := filter.Process(resizedImg)
 
     // Save the result
     lumina.Save("output.jpg", grayImg)

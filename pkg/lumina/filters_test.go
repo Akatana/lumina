@@ -67,10 +67,50 @@ func TestGrayscaleFilter_Process_NonZeroMin(t *testing.T) {
 	if grayImg.Bounds() != img.Bounds() {
 		t.Errorf("Expected bounds %v, got %v", img.Bounds(), grayImg.Bounds())
 	}
-	
+
 	// Check a pixel within bounds
 	c := grayImg.At(10, 10)
 	if _, ok := c.(color.Gray); !ok {
 		t.Errorf("Expected color.Gray, got %T", c)
+	}
+}
+
+func TestBlurFilter_Process(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	filter := &BlurFilter{Radius: 1}
+	dst := filter.Process(img)
+
+	if dst.Bounds() != img.Bounds() {
+		t.Errorf("Expected bounds %v, got %v", img.Bounds(), dst.Bounds())
+	}
+}
+
+func TestSharpenFilter_Process(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	filter := &SharpenFilter{}
+	dst := filter.Process(img)
+
+	if dst.Bounds() != img.Bounds() {
+		t.Errorf("Expected bounds %v, got %v", img.Bounds(), dst.Bounds())
+	}
+}
+
+func TestBrightnessFilter_Process(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	filter := &BrightnessFilter{Amount: 50}
+	dst := filter.Process(img)
+
+	if dst.Bounds() != img.Bounds() {
+		t.Errorf("Expected bounds %v, got %v", img.Bounds(), dst.Bounds())
+	}
+}
+
+func TestContrastFilter_Process(t *testing.T) {
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	filter := &ContrastFilter{Percentage: 20}
+	dst := filter.Process(img)
+
+	if dst.Bounds() != img.Bounds() {
+		t.Errorf("Expected bounds %v, got %v", img.Bounds(), dst.Bounds())
 	}
 }

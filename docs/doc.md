@@ -61,6 +61,21 @@ Saves an image to the filesystem. The format is determined by the file extension
 ### GrayscaleFilter
 A high-performance grayscale filter that processes image rows concurrently using Goroutines.
 
+### BlurFilter
+Applies a box blur effect to the image.
+- **Radius**: The radius of the blur.
+
+### SharpenFilter
+Applies a sharpening effect using a 3x3 convolution kernel.
+
+### BrightnessFilter
+Adjusts the brightness of the image.
+- **Amount**: The amount to adjust brightness (-255 to 255).
+
+### ContrastFilter
+Adjusts the contrast of the image.
+- **Percentage**: The percentage to adjust contrast (-100 to 100).
+
 ## Example Usage
 
 ```go

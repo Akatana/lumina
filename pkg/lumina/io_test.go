@@ -3,10 +3,60 @@ package lumina
 import (
 	"image"
 	"image/color"
+	"image/png"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
 )
+
+func TestLoad_URL(t *testing.T) {
+	// Create a dummy image
+	img := image.NewRGBA(image.Rect(0, 0, 10, 10))
+	for y := 0; y < 10; y++ {
+		for x := 0; x < 10; x++ {
+			img.Set(x, y, color.RGBA{255, 0, 0, 255})
+		}
+	}
+
+	// Create a mock server
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		err := png.Encode(w, img)
+		if err != nil {
+			t.Errorf("failed to encode image: %v", err)
+		}
+	}))
+	defer ts.Close()
+
+	// Test Load with URL
+	loadedImg, format, err := Load(ts.URL)
+	if err != nil {
+		t.Fatalf("Load URL failed: %v", err)
+	}
+
+	if format != "png" {
+		t.Errorf("Expected format png, got %s", format)
+	}
+
+	if loadedImg.Bounds() != img.Bounds() {
+		t.Errorf("Expected bounds %v, got %v", img.Bounds(), loadedImg.Bounds())
+	}
+}
+
+func TestLoad_URL_NotFound(t *testing.T) {
+	// Create a mock server that returns 404
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer ts.Close()
+
+	// Test Load with URL
+	_, _, err := Load(ts.URL)
+	if err == nil {
+		t.Error("Expected error for 404 Not Found, got nil")
+	}
+}
 
 func TestLoadSave(t *testing.T) {
 	tempDir, err := os.MkdirTemp("", "lumina_test")

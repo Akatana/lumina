@@ -6,6 +6,8 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -21,17 +23,32 @@ import (
 	"golang.org/x/image/bmp"
 )
 
-// Load reads an image from the given file path.
+// Load reads an image from the given path (local file or URL).
 // It supports JPEG, PNG, GIF, BMP, and WebP formats.
 // Returns the decoded image, the format name (e.g., "png", "jpeg", "webp", "bmp"), and any error encountered.
 func Load(path string) (image.Image, string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, "", fmt.Errorf("failed to open file: %w", err)
-	}
-	defer file.Close()
+	var reader io.ReadCloser
 
-	img, format, err := image.Decode(file)
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		resp, err := http.Get(path)
+		if err != nil {
+			return nil, "", fmt.Errorf("failed to fetch URL: %w", err)
+		}
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, "", fmt.Errorf("failed to fetch URL: received status code %d", resp.StatusCode)
+		}
+		reader = resp.Body
+	} else {
+		file, err := os.Open(path)
+		if err != nil {
+			return nil, "", fmt.Errorf("failed to open file: %w", err)
+		}
+		reader = file
+	}
+	defer reader.Close()
+
+	img, format, err := image.Decode(reader)
 	if err != nil {
 		return nil, "", fmt.Errorf("failed to decode image: %w", err)
 	}

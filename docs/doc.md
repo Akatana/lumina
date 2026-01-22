@@ -43,7 +43,7 @@ Lumina provides simple functions to load and save images.
 
 ### Load
 `Load(path string) (image.Image, string, error)`
-Loads an image from the filesystem. Supports PNG, JPEG, GIF, BMP, and WebP.
+Loads an image from the filesystem or a URL (http/https). Supports PNG, JPEG, GIF, BMP, and WebP.
 
 ### Save
 `Save(path string, img image.Image) error`

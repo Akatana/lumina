@@ -25,8 +25,8 @@ import (
 )
 
 func main() {
-    // Load an image
-    img, _, _ := lumina.Load("input.png")
+    // Load an image from a local file or a URL
+    img, _, _ := lumina.Load("https://example.com/input.png")
 
     // Use the default processor for Resize and Crop
     processor := &lumina.DefaultProcessor{}

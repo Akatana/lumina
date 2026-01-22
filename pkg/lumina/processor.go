@@ -120,3 +120,58 @@ func (p *DefaultProcessor) Crop(img image.Image, rect image.Rectangle) image.Ima
 func (p *DefaultProcessor) ApplyFilter(img image.Image, filter Filter) image.Image {
 	return filter.Process(img)
 }
+
+// Scale scales an image to fit or fill a target dimension, optimized for digital signage.
+func (p *DefaultProcessor) Scale(img image.Image, targetWidth, targetHeight int, mode ScaleMode) image.Image {
+	if targetWidth <= 0 || targetHeight <= 0 {
+		return image.NewRGBA(image.Rect(0, 0, 0, 0))
+	}
+
+	bounds := img.Bounds()
+	srcW, srcH := bounds.Dx(), bounds.Dy()
+
+	switch mode {
+	case Stretch:
+		return p.Resize(img, targetWidth, targetHeight)
+
+	case Fit:
+		ratioW := float64(targetWidth) / float64(srcW)
+		ratioH := float64(targetHeight) / float64(srcH)
+		ratio := ratioW
+		if ratioH < ratio {
+			ratio = ratioH
+		}
+
+		newW := int(float64(srcW) * ratio)
+		newH := int(float64(srcH) * ratio)
+
+		// Create a background image of the target size (black)
+		dst := image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
+		// Center the resized image
+		resized := p.Resize(img, newW, newH)
+		offsetX := (targetWidth - newW) / 2
+		offsetY := (targetHeight - newH) / 2
+		draw.Draw(dst, image.Rect(offsetX, offsetY, offsetX+newW, offsetY+newH), resized, image.Point{}, draw.Src)
+		return dst
+
+	case Fill:
+		ratioW := float64(targetWidth) / float64(srcW)
+		ratioH := float64(targetHeight) / float64(srcH)
+		ratio := ratioW
+		if ratioH > ratio {
+			ratio = ratioH
+		}
+
+		newW := int(float64(srcW) * ratio)
+		newH := int(float64(srcH) * ratio)
+
+		resized := p.Resize(img, newW, newH)
+		// Crop the center
+		offsetX := (newW - targetWidth) / 2
+		offsetY := (newH - targetHeight) / 2
+		return p.Crop(resized, image.Rect(offsetX, offsetY, offsetX+targetWidth, offsetY+targetHeight))
+
+	default:
+		return p.Resize(img, targetWidth, targetHeight)
+	}
+}

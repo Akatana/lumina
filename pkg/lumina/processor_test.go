@@ -99,4 +99,32 @@ func TestDefaultProcessor(t *testing.T) {
 			t.Fatal("Expected non-nil image")
 		}
 	})
+
+	t.Run("Scale", func(t *testing.T) {
+		src := image.NewRGBA(image.Rect(0, 0, 100, 50)) // 2:1 ratio
+
+		t.Run("Stretch", func(t *testing.T) {
+			dst := proc.Scale(src, 100, 100, Stretch)
+			if dst.Bounds().Dx() != 100 || dst.Bounds().Dy() != 100 {
+				t.Errorf("Expected 100x100, got %v", dst.Bounds())
+			}
+		})
+
+		t.Run("Fit", func(t *testing.T) {
+			dst := proc.Scale(src, 200, 200, Fit)
+			if dst.Bounds().Dx() != 200 || dst.Bounds().Dy() != 200 {
+				t.Errorf("Expected 200x200 canvas, got %v", dst.Bounds())
+			}
+			// The content should be 200x100 (fitting 2:1 into 1:1)
+			// We can't easily check content without complex logic, but bounds are correct
+		})
+
+		t.Run("Fill", func(t *testing.T) {
+			dst := proc.Scale(src, 100, 100, Fill)
+			if dst.Bounds().Dx() != 100 || dst.Bounds().Dy() != 100 {
+				t.Errorf("Expected 100x100, got %v", dst.Bounds())
+			}
+			// 100x50 filling 100x100 will scale to 200x100 then crop to 100x100
+		})
+	})
 }

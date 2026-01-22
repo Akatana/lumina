@@ -28,18 +28,30 @@ func main() {
     // Load an image from a local file or a URL
     img, _, _ := lumina.Load("https://example.com/input.png")
 
-    // Use the default processor for Resize and Crop
+    // Use the default processor
     processor := &lumina.DefaultProcessor{}
     
-    // Resize image
+    // 1. Basic Resize
     resizedImg := processor.Resize(img, 800, 600)
 
-    // Apply grayscale filter
-    filter := &lumina.GrayscaleFilter{}
-    grayImg := filter.Process(resizedImg)
+    // 2. Intelligent Scaling (Perfect for Digital Signage)
+    // Scale to Fill: Covers the entire area, may crop edges
+    fillImg := processor.Scale(img, 1920, 1080, lumina.Fill)
+    
+    // Scale to Fit: Fits within area, adds letterboxing/pillarboxing
+    fitImg := processor.Scale(img, 1920, 1080, lumina.Fit)
 
-    // Save the result
-    lumina.Save("output.jpg", grayImg)
+    // 3. Apply Filters
+    // Grayscale
+    grayImg := (&lumina.GrayscaleFilter{}).Process(fillImg)
+    
+    // Adjust Brightness and Contrast
+    brightImg := (&lumina.BrightnessFilter{Amount: 20}).Process(grayImg)
+    finalImg := (&lumina.ContrastFilter{Percentage: 10}).Process(brightImg)
+
+    // 4. Save results
+    lumina.Save("output_final.jpg", finalImg)
+    lumina.Save("output_fit.png", fitImg)
 }
 ```
 
@@ -53,5 +65,5 @@ For detailed documentation, please refer to:
 
 - [x] Implementation of high-performance Resize and Crop algorithms.
 - [x] Support for more filters (Blur, Sharpen, Brightness, Contrast).
-- [ ] **Dynamic asset scaling** optimized for digital signage.
+- [x] **Dynamic asset scaling** (via `Scale` method) optimized for digital signage.
 - [ ] SIMD optimizations for even greater performance.

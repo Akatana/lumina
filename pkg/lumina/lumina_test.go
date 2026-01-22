@@ -20,6 +20,10 @@ func (p *MockProcessor) ApplyFilter(img image.Image, filter Filter) image.Image 
 	return filter.Process(img)
 }
 
+func (p *MockProcessor) Scale(img image.Image, targetWidth, targetHeight int, mode ScaleMode) image.Image {
+	return image.NewRGBA(image.Rect(0, 0, targetWidth, targetHeight))
+}
+
 func TestProcessorInterface(t *testing.T) {
 	var _ Processor = (*MockProcessor)(nil)
 
@@ -46,6 +50,13 @@ func TestProcessorInterface(t *testing.T) {
 		filtered := proc.ApplyFilter(img, filter)
 		if filtered == nil {
 			t.Fatal("Expected filtered image, got nil")
+		}
+	})
+
+	t.Run("Scale", func(t *testing.T) {
+		scaled := proc.Scale(img, 30, 30, Fit)
+		if scaled.Bounds().Dx() != 30 || scaled.Bounds().Dy() != 30 {
+			t.Errorf("Expected 30x30, got %v", scaled.Bounds())
 		}
 	})
 }
